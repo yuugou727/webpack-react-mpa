@@ -81,13 +81,13 @@ var config = {
 if (isProd) { //production specify plugin
 	config.plugins.push(
 		new ExtractTextPlugin({
-			filename: 'app-[hash:8].css',
+			filename: '[name]-[hash:8].css',
 			disable: false, // [for dev] true; [for build] false
 			allChunks: true
 		}),
 		new CleanWebpackPlugin(['dist'],{ // [for build] 清空dist
 			verbose: true, //show message
-			exclude : ['']
+			exclude : []
 		})
 	);
 }
