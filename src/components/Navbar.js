@@ -1,4 +1,6 @@
-import React, {Component} from 'react';
+import React from 'react';
+import { Button } from 'semantic-ui-react';
+
 
 class Navbar extends React.Component {
 	render() {
@@ -8,9 +10,9 @@ class Navbar extends React.Component {
 		]
 		return (
 			<div>
-				<ul>
-					{links.map((v,i)=>(<li key={i}><a href={v.href}>{v.text}</a></li>))}
-				</ul>
+				{links.map((v,i)=>(
+					<Button key={i} content={v.text} onClick={(e)=>{location.href=v.href}}/>
+				))}
 			</div>
 		);
 	}

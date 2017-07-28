@@ -4,15 +4,16 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
-var isProd = process.env.NODE_ENV === 'production';
+const isProd = process.env.NODE_ENV === 'production';
 console.log('NODE_ENV = ' + process.env.NODE_ENV);
 
-var config = {
+const VENDOR_LIST = ['react','react-dom','semantic-ui-react'];
+const config = {
 	entry: {
 		main: './src/main.js',
 		contact: './src/contact.js',
-		vendor: ['react','react-dom']
-	},
+		vendor: VENDOR_LIST
+	}, 
 	output: {
 		path: path.join( __dirname, 'dist/'),
 		filename: isProd ? '[name]-[chunkhash:8].js' : '[name].js',
@@ -20,7 +21,7 @@ var config = {
 	module:{
 		rules:[
 			{
-				test: /\.scss$/,
+				test: /\.s?css$/,
 				use: isProd ? 
 					ExtractTextPlugin.extract({
 						fallback: 'style-loader',
@@ -28,43 +29,50 @@ var config = {
 						publicPath: './dist'
 					}):
 					['style-loader', 'css-loader', 'sass-loader'],
-				},
+			},
 			{
 				test: /\.js$/,
 				exclude: /node_modules/,
 				use: 'babel-loader'
+			},
+			{
+				test: /\.(png|svg|jpg|gif)$/,
+				use: [
+					'file-loader'
+				]
+			},
+			{
+				test: /\.(woff|woff2|eot|ttf|otf)$/,
+				use: [
+					'file-loader'
+				]
 			}
 		] 
 	},
 	plugins: [ 
-		// new webpack.optimize.CommonsChunkPlugin({
-        //     name: ['vendor','manifest'], // 'vendor' keeps long-term cache. split runtime code into 'manifest'
-        //     minChunks: Infinity,
-        // }),
 		new webpack.optimize.CommonsChunkPlugin({
 			name: 'vendor',
 			minChunks: function (module) {
-				// this assumes your vendor imports exist in the node_modules directory
 				return module.context && module.context.indexOf('node_modules') !== -1;
 			}
 		}),
-		//CommonChunksPlugin will now extract all the common modules from vendor and main bundles
 		new webpack.optimize.CommonsChunkPlugin({ 
-			name: 'manifest' //But since there are no more common modules between them we end up with just the runtime code included in the manifest file
+			name: 'manifest',
+			minChunks: Infinity
 		}),
 		new HtmlWebpackPlugin({
-			title: 'My App',
-			favicon: '',
+			title: 'Main Page',
 			template: './src/index.html',
+			favicon: '',
 			chunks: ['main','vendor','manifest'],
-			minify: {collapseWhitespace: true,},
+			minify: {collapseWhitespace: true},
 		}),
 		new HtmlWebpackPlugin({
-			title: 'My App',
-		    filename: 'contact.html', // 指定 template 要輸出的路徑,與template同名可不設
-		    template: './src/index.html',
-		    chunks: ['contact','vendor','manifest'],
-		    minify: {collapseWhitespace: true,},
+			title: 'Contact Page',
+			template: './src/index.html',
+			filename: 'contact.html', // 指定 template 要輸出的路徑,與template同名可不設
+			chunks: ['contact','vendor','manifest'],
+			minify: {collapseWhitespace: true},
 		})
 	],
 	devtool: isProd ? false : 'eval-source-map',
